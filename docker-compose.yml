@@ -1,0 +1,44 @@
+version: '3'
+
+services:
+  #-------------------------------
+  backend1:
+    build:
+      context: ./
+    environment:
+      - NUMBER=1
+    ports:
+      - "9090:5000"
+    container_name: 'backend1'
+    networks:
+      - docker_network
+  #--------------------------------
+  backend2:
+    depends_on:
+      - backend1
+    build:
+      context: ./
+    environment:
+      - NUMBER=2
+    ports:
+      - "5000:5000"
+    container_name: 'backend2'
+    networks:
+      - docker_network
+  #--------------------------------
+  haproxy:
+    depends_on:
+      - backend2
+    image: haproxy:latest
+    container_name: haproxy
+    ports:
+      - "80:80"
+    volumes:
+      - "./haproxy:/usr/local/etc/haproxy"
+    networks:
+      - docker_network
+    
+
+networks:
+  docker_network:
+    driver: bridge
